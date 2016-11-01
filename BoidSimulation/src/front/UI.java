@@ -15,10 +15,14 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Separator;
+import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -31,10 +35,13 @@ import javafx.util.Duration;
  */
 
 public class UI extends Application {
+	
+	private String state = "All vectors turned on";
+
 	int width = 1400, height = 800;
 	float x = 100, y = 100;
-	double smoothingVelocity = 30; // divided by
-	double collisionNormalisationDelta = 5; // multiplied by
+	double smoothingVelocity = 50; // divided by
+	double collisionNormalisationDelta = 6; // multiplied by
 
 	// ArrayList of Boids
 	ArrayList<Boid> boidList = new ArrayList<Boid>();
@@ -56,26 +63,30 @@ public class UI extends Application {
 //		}
 
 		Group boids = new Group(); 
-		BorderPane border = new BorderPane();
-		VBox vbox = new VBox();
-		vbox.setPadding(new Insets(15, 12, 15, 12));
+		Pane inner = new Pane();
+		inner.setStyle("-fx-background-color: black");
+		ToolBar bar = new ToolBar();
+
+		BorderPane border = new BorderPane(inner);
+		border.setTop(bar);
 
 		Button bVector1 = new Button();
-		bVector1.setPrefWidth(width/6);
-		bVector1.setText("Turn on/off Separation Rule");
+		bVector1.setPrefWidth(width/7);
+		bVector1.setText("Turn off Separation Rule");
 
 		Button bVector2 = new Button();
-		bVector2.setPrefWidth(width/6);
-		bVector2.setText("Turn on/off Alignment Rule");
+		bVector2.setPrefWidth(width/7);
+		bVector2.setText("Turn off Alignment Rule");
 
 
 		Button bVector3 = new Button();
-		bVector3.setPrefWidth(width/6);
-		bVector3.setText("Turn on/off Cohesion Rule");
+		bVector3.setPrefWidth(width/7);
+		bVector3.setText("Turn off Cohesion Rule");
 		
-		vbox.getChildren().addAll(bVector1, bVector2, bVector3);
-		border.setRight(vbox);
-		border.setCenter(boids);
+		Text status = new Text("Separation, alignment, and cohesion turned on");
+		
+		bar.getItems().addAll(bVector1, bVector2, bVector3, new Separator(), status);
+		inner.getChildren().add(boids);
 		Scene scene = new Scene(border, width, height);
 
 		// Add Boids to the Group object
@@ -83,6 +94,15 @@ public class UI extends Application {
 			Boid boid = boidList.get(i);
 			boids.getChildren().add(boid);
 		}
+		
+		bVector1.setOnAction(new EventHandler<ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent event) {
+				state = "going";
+				status.setText("Separation, and alignment turned on. Cohesion turned off.");
+				bVector1.setText("Turn off Separation Rule");
+			}});
 
 		// Setup animation
 		KeyFrame frame = new KeyFrame(Duration.seconds(1.0/24.0), new EventHandler<ActionEvent>() {
